@@ -5,6 +5,7 @@ const upload = require('../middlewares/upload');
 
 
 router.post('/update-address', playController.updateAddress);
+
 router.put('/', upload.fields([
     { name: 'profile', maxCount: 1 },
     { name: 'licenseFront', maxCount: 1 },

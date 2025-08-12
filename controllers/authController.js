@@ -137,12 +137,42 @@ exports.login = async (req, res) => {
         const payload = { user: { id: user.id } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        return res.json({
+        const response = {
             message: 'Login successful',
             token,
             name: user.name,
-            user_type: user.user_type
-        });
+            user_type: user.user_type,
+            is_verify:true
+        };
+
+        if (type == 'driver') {
+
+            if (!user.ssn || user.ssn.trim() === '') {
+                response.is_verify = false;
+                response.pending_step = 'personal_info';
+            }
+            else if (
+                !user.driverCredentials ||
+                !user.driverCredentials.licenseNumber ||
+                !user.driverCredentials.licenseIssueDate ||
+                !user.driverCredentials.licenseExpiryDate
+            ) {
+                response.is_verify = false;
+                response.pending_step = 'driver_credential';
+            }
+            else if (
+                !user.documents ||
+                !user.documents.licenseFront ||
+                !user.documents.licenseBack ||
+                !user.documents.addressFront ||
+                !user.documents.addressBack
+            ) {
+                response.is_verify = false;
+                response.pending_step = 'documents';
+            }
+        }
+
+        return res.json(response);
     } catch (err) {
         console.error('Login Error:', err.message);
         return res.status(500).json({
@@ -155,7 +185,7 @@ exports.login = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
     try {
-        const { mobile ,type } = req.body || {};
+        const { mobile, type } = req.body || {};
         const errors = {};
 
         if (!mobile) {
@@ -176,11 +206,11 @@ exports.forgotPassword = async (req, res) => {
             return res.status(422).json({ message: 'Validation Error', errors });
         }
 
-        const user = await User.findOne({ mobile ,user_type:type });
+        const user = await User.findOne({ mobile, user_type: type });
         if (!user) {
             return res.status(422).json({
                 message: 'Validation Error',
-                errors: formatError('mobile',  `No ${type} account is registered with the mobile number ${mobile}.`)
+                errors: formatError('mobile', `No ${type} account is registered with the mobile number ${mobile}.`)
             });
         }
 
