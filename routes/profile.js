@@ -13,7 +13,9 @@ router.put('/', upload.fields([
     { name: 'addressFront', maxCount: 1 },
     { name: 'addressBack', maxCount: 1 }
 ]), playController.updateProfile);
+
 router.get('/', playController.getProfile);
+router.get('/optlize_routes', playController.optimizeBusRoute);
 
 
 module.exports = router;
