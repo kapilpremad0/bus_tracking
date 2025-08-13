@@ -11,6 +11,14 @@ const pauseDateSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    reason: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

@@ -3,6 +3,7 @@ const router = express.Router();
 const Plan = require('../models/Plan');
 const Subscription = require('../models/Subscription');
 const PauseDate = require('../models/PauseDate');
+const LeaveDate = require('../models/LeaveDate');
 const formatError = (field, message) => ({ [field]: message });
 
 
@@ -87,28 +88,167 @@ exports.addPauseDate = async (req, res) => {
     const userId = req.user.id;
     const errors = {};
     try {
-        const { dates } = req.body || {};
+        const { dates, reason, description } = req.body || {};
 
         if (!dates || !Array.isArray(dates) || dates.length === 0) {
-            // return res.status(400).json({ message: "Array of dates is required" });
-            Object.assign(errors, formatError('dates', 'Array of dates is required'));
+            Object.assign(errors, { dates: 'Array of dates is required' });
         }
 
+        if (!reason) {
+            Object.assign(errors, formatError('reason', 'The reason field is required.'));
+        }
+
+        if (!description) {
+            Object.assign(errors, formatError('description', 'The description field is required.'));
+        }
 
         if (Object.keys(errors).length > 0) {
             return res.status(422).json({ message: 'Validation Error', errors });
         }
 
-        const pauseDatesToInsert = dates.map(dateStr => ({
-            user_id: userId,
-            date: new Date(dateStr),
-        }));
+        // Normalize dates to ISO string to compare easily
+        const normalizedDates = dates.map(d => new Date(d).toISOString());
 
-        // Insert all at once
-        const inserted = await PauseDate.insertMany(pauseDatesToInsert);
+        // Find existing dates for this user among the dates requested
+        const existingPauseDates = await PauseDate.find({
+            user_id: userId,
+            date: { $in: normalizedDates },
+        }).select('date');
+
+        const existingDatesSet = new Set(existingPauseDates.map(d => d.date.toISOString()));
+
+        // Filter out dates which already exist
+        const datesToInsert = normalizedDates
+            .filter(d => !existingDatesSet.has(d))
+            .map(d => ({
+                user_id: userId,
+                date: new Date(d),
+                reason: reason,
+                description: description
+            }));
+
+        if (datesToInsert.length === 0) {
+            return res.status(200).json({ message: 'No new dates to add, all dates already exist.' });
+        }
+
+        // Insert only new dates
+        const inserted = await PauseDate.insertMany(datesToInsert);
         res.json({ message: "Pause dates added", inserted });
     } catch (err) {
-        console.error('Update Profile:', err.message);
+        console.error('Add Pause Dates:', err.message);
+        return res.status(500).json({ message: 'Server Error ' + err.message });
+    }
+};
+
+
+exports.getPauseDate = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const getPauseDate = await PauseDate.find({ user_id: userId }).sort({ date: -1 });
+        return res.json(getPauseDate);
+    } catch (err) {
+        console.error('Add Pause Dates:', err.message);
+        return res.status(500).json({ message: 'Server Error ' + err.message });
+    }
+}
+
+
+exports.addLeaveDate = async (req, res) => {
+    const userId = req.user.id;
+    const errors = {};
+    try {
+        const { dates, reason, description } = req.body || {};
+
+        if (!dates || !Array.isArray(dates) || dates.length === 0) {
+            Object.assign(errors, { dates: 'Array of dates is required' });
+        }
+
+        if (!reason) {
+            Object.assign(errors, formatError('reason', 'The reason field is required.'));
+        }
+
+        if (!description) {
+            Object.assign(errors, formatError('description', 'The description field is required.'));
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(422).json({ message: 'Validation Error', errors });
+        }
+
+        // Normalize dates to ISO string to compare easily
+        const normalizedDates = dates.map(d => new Date(d).toISOString());
+
+        // Find existing dates for this user among the dates requested
+        const existingLeaveDates = await LeaveDate.find({
+            user_id: userId,
+            date: { $in: normalizedDates },
+        }).select('date');
+
+        const existingDatesSet = new Set(existingLeaveDates.map(d => d.date.toISOString()));
+
+        // Filter out dates which already exist
+        const datesToInsert = normalizedDates
+            .filter(d => !existingDatesSet.has(d))
+            .map(d => ({
+                user_id: userId,
+                date: new Date(d),
+                reason: reason,
+                description: description
+            }));
+
+        if (datesToInsert.length === 0) {
+            return res.status(200).json({ message: 'No new dates to add, all dates already exist.' });
+        }
+
+        // Insert only new dates
+        const inserted = await LeaveDate.insertMany(datesToInsert);
+        res.json({ message: "Leave dates added", inserted });
+    } catch (err) {
+        console.error('Add Leave Dates:', err.message);
+        return res.status(500).json({ message: 'Server Error ' + err.message });
+    }
+};
+
+
+exports.getLeaveDate = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const getPauseDate = await LeaveDate.find({ user_id: userId }).sort({ date: -1 });
+        return res.json(getPauseDate);
+    } catch (err) {
+        console.error('get Leave Dates:', err.message);
+        return res.status(500).json({ message: 'Server Error ' + err.message });
+    }
+}
+
+exports.generalSettings = async (req, res) => {
+    try {
+        const leaveReasons = [
+            "Personal reasons",
+            "Medical or health issues",
+            "Family emergency",
+            "Vacation or holiday",
+            "Maternity/Paternity leave",
+            "Bereavement leave",
+            "Marriage leave",
+            "Relocation",
+            "Official work or training",
+            "Other"
+        ];
+        const passengerReasons = [
+            "Need to attend to a quick errand",
+            "Waiting for someone to arrive",
+            "Change of destination",
+            "Taking a short break",
+            "Phone call or emergency",
+            "Vehicle issue reported",
+            "Feeling unwell",
+            "Other"
+        ];
+
+        return res.json({ pause_ride_reason: passengerReasons,leave_request_reasons:leaveReasons  });
+    } catch (err) {
+        console.error('get general settings:', err.message);
         return res.status(500).json({ message: 'Server Error ' + err.message });
     }
 }
