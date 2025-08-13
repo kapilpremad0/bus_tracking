@@ -23,6 +23,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api', require('./routes/api.js'));
 app.use('/api/profile', verifyToken,require('./routes/profile'));
+app.use('/api/attendance', verifyToken,require('./routes/attendance'));
 
 
 const PORT = process.env.PORT || 3000;
