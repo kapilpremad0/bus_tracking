@@ -106,6 +106,11 @@ exports.updateProfile = async (req, res) => {
         if (req.files?.addressBack) {
             user.documents.addressBack = req.files.addressBack[0].filename;
         }
+
+        user.driverCredentials = { ...user.driverCredentials.toObject(), ...driverCredentials };
+
+
+
         await user.save();
 
         return res.json({

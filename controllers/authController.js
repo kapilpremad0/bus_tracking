@@ -66,6 +66,13 @@ exports.register = async (req, res) => {
             user_type: type
         });
 
+        const otp = generateOTP(6);
+        const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 min from now
+
+        // Save OTP & expiry in DB
+        newUser.otp = otp;
+        newUser.otpExpiry = otpExpiry;
+
         await newUser.save();
 
         const payload = { user: { id: newUser.id } };
@@ -142,7 +149,7 @@ exports.login = async (req, res) => {
             token,
             name: user.name,
             user_type: user.user_type,
-            is_verify:true
+            is_verify: true
         };
 
         if (type == 'driver') {
