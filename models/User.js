@@ -10,12 +10,16 @@ const UserSchema = new mongoose.Schema({
         enum: ['customer', 'driver'],
         default: 'customer'
     },
+    otp_verify: {
+        type: Boolean,
+        default: false   // false = not verified, true = verified
+    },
     mobile: {
         type: String,
         required: true,
         unique: true
     },
-    gmail: { type: String, default: null }, // Gmail address
+    email: { type: String, default: null }, // Gmail address
     gender: {
         type: String,
         enum: ['male', 'female', 'other', null],

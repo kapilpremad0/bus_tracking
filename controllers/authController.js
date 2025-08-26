@@ -17,7 +17,7 @@ function generateOTP(length = 4) {
 
 exports.register = async (req, res) => {
     try {
-        const { name, mobile, password, type } = req.body || {};
+        const { name, mobile, password, type, email } = req.body || {};
         const errors = {};
 
         if (!name) {
@@ -45,6 +45,15 @@ exports.register = async (req, res) => {
             Object.assign(errors, formatError('type', `The type must be one of: ${allowedTypes.join(', ')}`));
         }
 
+
+        if (!email) {
+            Object.assign(errors, formatError('email', 'The email field is required.'));
+        } else if (typeof email !== 'string') {
+            Object.assign(errors, formatError('email', 'The email must be a string.'));
+        } else if (!/^[\w.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            Object.assign(errors, formatError('email', 'The email must be a valid email address.'));
+        }
+
         if (Object.keys(errors).length > 0) {
             return res.status(422).json({ message: 'Validation Error', errors });
         }
@@ -57,13 +66,22 @@ exports.register = async (req, res) => {
             });
         }
 
+        const userEmailExists = await User.findOne({ email });
+        if (userEmailExists) {
+            return res.status(422).json({
+                message: 'Validation Error',
+                errors: formatError('email', `Email is already registered as ${userEmailExists.user_type}`)
+            });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
             name,
             mobile,
             password: hashedPassword,
-            user_type: type
+            user_type: type,
+            email: email
         });
 
         const otp = generateOTP(6);
@@ -149,7 +167,8 @@ exports.login = async (req, res) => {
             token,
             name: user.name,
             user_type: user.user_type,
-            is_verify: true
+            is_verify: true,
+            otp_verify: user.otp_verify
         };
 
         if (type == 'driver') {
@@ -296,6 +315,7 @@ exports.verifyOtp = async (req, res) => {
         // OTP is valid → clear OTP from DB
         user.otp = null;
         user.otpExpiry = null;
+        user.otp_verify = true;
         await user.save();
 
         const payload = { user: { id: user.id } };

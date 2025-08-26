@@ -9,4 +9,5 @@ router.post('/forgot-password',playController.forgotPassword);
 router.post('/verify-otp',playController.verifyOtp);
 router.post('/reset-password',playController.resetPassword);
 
+
 module.exports = router;
