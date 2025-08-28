@@ -63,7 +63,7 @@ exports.updateAddress = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
-    const { name, gender, gmail, dob, ssn, emergencyContact, homeAddress, driverCredentials } = req.body || {};
+    const { name, gender, email, dob, ssn, emergencyContact, homeAddress, driverCredentials } = req.body || {};
     const errors = {};
 
 
@@ -84,7 +84,7 @@ exports.updateProfile = async (req, res) => {
 
         // Update fields
         if (name) user.name = name;
-        if (gmail) user.gmail = gmail;
+        if (email) user.email = email;
         if (gender) user.gender = gender;
         if (dob) user.dob = dob;
         if (ssn) user.ssn = ssn;
@@ -133,6 +133,38 @@ exports.getProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+
+        return res.json({
+            message: "Profile data fetch successfully",
+            user
+        });
+    } catch (err) {
+        console.error('Get Profile Data:', err.message);
+        return res.status(500).json({
+            message: 'Server Error',
+            success: false
+        });
+    }
+}
+
+
+exports.deleteProfile = async (req, res) => {
+    const userId = req.user.id; // assuming authentication middleware sets req.user
+
+    try {
+        const user = await User.findById(userId).select('-password'); // exclude password
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.profile) {
+            // remove from DB
+            user.profile = null;
+            await user.save();
+        }
+
 
 
         return res.json({
@@ -214,7 +246,7 @@ const ORS_GEOCODE_URL = "https://api.openrouteservice.org/geocode/reverse";
 
 
 exports.optimizeBusRoute = async (req, res) => {
-   try {
+    try {
         // Driver starting point
         const driverStart = {
             lat: 26.9124,
@@ -342,6 +374,10 @@ exports.optimizeBusRoute = async (req, res) => {
         res.status(500).json({ error: "Server Error" });
     }
 };
+
+
+
+
 
 
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const playController = require('../controllers/homeController.js');
+const homeController = require('../controllers/homeController.js');
 const verifyToken = require('../middlewares/auth'); // 👈 Import middleware
 
 
@@ -15,6 +16,7 @@ router.post('/leave-date',verifyToken,playController.addLeaveDate);
 router.get('/leave-date',verifyToken,playController.getLeaveDate);
 
 router.get('/general-settings',verifyToken,playController.generalSettings);
+router.get('/home/driver',verifyToken,homeController.homeDriver)
 
 // router.post('/login',playController.login);
 // router.post('/forgot-password',playController.forgotPassword);

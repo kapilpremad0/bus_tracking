@@ -15,7 +15,7 @@ const PunchSchema = new mongoose.Schema({
         default: null,
     },
     date: {
-        type: String, // Store as 'YYYY-MM-DD' for uniqueness & easy queries
+        type: Date, // Store as 'YYYY-MM-DD' for uniqueness & easy queries
         required: true,
         index: true,
     },

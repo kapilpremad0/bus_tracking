@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Plan = require('../models/Plan');
+const Punch = require('../models/Punch');
 const Subscription = require('../models/Subscription');
 const PauseDate = require('../models/PauseDate');
 const LeaveDate = require('../models/LeaveDate');
@@ -221,6 +222,58 @@ exports.getLeaveDate = async (req, res) => {
     }
 }
 
+
+exports.homeDriver = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+        // find today's punch
+        const punch = await Punch.findOne({
+            user_id: userId,
+            date: { $gte: startOfDay, $lte: endOfDay }
+        }).sort({ date: -1 }); // in case multiple entries
+
+        var attendance = {};
+
+        // return res.json(punch);
+
+        if (punch) {
+            let workingHours = null;
+
+            if (punch.punch_in) {
+                // If punch_out exists, calculate normally
+                if (punch.punch_out) {
+                    workingHours = (punch.punch_out - punch.punch_in) / (1000 * 60 * 60);
+                } else {
+                    // If no punch_out, calculate till now
+                    const now = new Date();
+                    workingHours = (now - punch.punch_in) / (1000 * 60 * 60);
+                }
+            }
+
+            attendance = {
+                date: punch.date,
+                punch_in: punch.punch_in,
+                punch_out: punch.punch_out || null,
+                working_hours: workingHours !== null ? workingHours.toFixed(2) : null,
+            };
+        }
+
+        return res.json({
+            today_attendance: attendance
+        });
+
+    } catch (err) {
+        console.error('get Leave Dates:', err.message);
+        return res.status(500).json({ message: 'Server Error ' + err.message });
+    }
+}
+
+
+
 exports.generalSettings = async (req, res) => {
     try {
         const leaveReasons = [
@@ -246,7 +299,7 @@ exports.generalSettings = async (req, res) => {
             "Other"
         ];
 
-        return res.json({ pause_ride_reason: passengerReasons,leave_request_reasons:leaveReasons  });
+        return res.json({ pause_ride_reason: passengerReasons, leave_request_reasons: leaveReasons });
     } catch (err) {
         console.error('get general settings:', err.message);
         return res.status(500).json({ message: 'Server Error ' + err.message });
