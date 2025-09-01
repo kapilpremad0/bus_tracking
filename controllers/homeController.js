@@ -5,6 +5,9 @@ const Punch = require('../models/Punch');
 const Subscription = require('../models/Subscription');
 const PauseDate = require('../models/PauseDate');
 const LeaveDate = require('../models/LeaveDate');
+const path = require('path');
+
+
 const formatError = (field, message) => ({ [field]: message });
 
 
@@ -273,6 +276,11 @@ exports.homeDriver = async (req, res) => {
 }
 
 
+exports.termsPage = (req, res) => {
+    const filePath = path.join(__dirname, '../public/frontend/terms.html');
+    res.sendFile(filePath);
+};
+
 
 exports.generalSettings = async (req, res) => {
     try {
@@ -299,7 +307,14 @@ exports.generalSettings = async (req, res) => {
             "Other"
         ];
 
-        return res.json({ pause_ride_reason: passengerReasons, leave_request_reasons: leaveReasons });
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const termsUrl = `${baseUrl}/api/terms`; // or `${baseUrl}/static/terms/bus-tracking-terms.html`
+
+        return res.json({
+            pause_ride_reason: passengerReasons,
+            leave_request_reasons: leaveReasons,
+            terms_url: termsUrl
+        });
     } catch (err) {
         console.error('get general settings:', err.message);
         return res.status(500).json({ message: 'Server Error ' + err.message });

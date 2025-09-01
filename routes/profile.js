@@ -18,6 +18,6 @@ router.get('/', playController.getProfile);
 router.get('/delete-profile-image', playController.deleteProfile);
 
 router.get('/optlize_routes', playController.optimizeBusRoute);
-
+router.delete('/', playController.deleteAccount);
 
 module.exports = router;

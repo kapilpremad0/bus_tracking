@@ -23,4 +23,8 @@ router.get('/home/driver',verifyToken,homeController.homeDriver)
 // router.post('/verify-otp',playController.verifyOtp);
 // router.post('/reset-password',playController.resetPassword);
 
+
+
+router.get('/terms', homeController.termsPage);
+
 module.exports = router;

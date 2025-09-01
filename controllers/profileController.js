@@ -63,7 +63,7 @@ exports.updateAddress = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
-    const { name, gender, email, dob, ssn, emergencyContact, homeAddress, driverCredentials } = req.body || {};
+    const { name, gender, email, dob, ssn, emergencyContact, homeAddress, driverCredentials ,terms_conditions } = req.body || {};
     const errors = {};
 
 
@@ -88,6 +88,7 @@ exports.updateProfile = async (req, res) => {
         if (gender) user.gender = gender;
         if (dob) user.dob = dob;
         if (ssn) user.ssn = ssn;
+        if (terms_conditions) user.terms_conditions = terms_conditions;
         if (emergencyContact) user.emergencyContact = emergencyContact;
         if (homeAddress) user.homeAddress = homeAddress;
 
@@ -166,7 +167,6 @@ exports.deleteProfile = async (req, res) => {
         }
 
 
-
         return res.json({
             message: "Profile data fetch successfully",
             user
@@ -180,6 +180,22 @@ exports.deleteProfile = async (req, res) => {
     }
 }
 
+
+exports.deleteAccount = async (req, res) => {
+    try {
+        const userId = req.user.id; // Assuming you're using auth middleware to set req.user
+        const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ message: "Profile deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting profile:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 
 

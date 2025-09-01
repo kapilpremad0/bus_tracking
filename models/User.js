@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false   // false = not verified, true = verified
     },
+    terms_conditions: {
+        type: Boolean,
+        default: false   // false = not verified, true = verified
+    },
     mobile: {
         type: String,
         required: true,
