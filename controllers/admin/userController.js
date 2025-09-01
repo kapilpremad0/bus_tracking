@@ -10,6 +10,15 @@ exports.getUserList = async (req, res) => {
   }
 };
 
+exports.deleteRecord = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting user", error: err });
+  }
+};
+
 exports.getuserData = async (req, res) => {
   try {
 
@@ -19,7 +28,7 @@ exports.getuserData = async (req, res) => {
     const search = req.body.search?.value || "";
     const status = req.body.status; // Get the status filter
 
-    const query = { user_type: "customer" ,otp_verify:true};
+    const query = { user_type: "customer", otp_verify: true };
 
     // Search condition
     if (search) {
@@ -78,11 +87,11 @@ exports.getuserData = async (req, res) => {
                             <i data-feather="more-vertical"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#">
-                              <i data-feather="edit-2" class="me-50"></i>
-                              <span>Edit</span>
+                            <a class="dropdown-item" href="/admin/users/${item._id}">
+                              <i data-feather="eye" class="me-50"></i>
+                              <span>Show</span>
                             </a>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item delete-user" href="#" data-id="${item._id}" data-name="${item.name}" >
                               <i data-feather="trash" class="me-50"></i>
                               <span>Delete</span>
                             </a>

@@ -10,6 +10,15 @@ exports.getList = async (req, res) => {
   }
 };
 
+exports.deleteRecord = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting user", error: err });
+  }
+};
+
 exports.getListData = async (req, res) => {
   try {
 
@@ -82,7 +91,7 @@ exports.getListData = async (req, res) => {
                               <i data-feather="edit-2" class="me-50"></i>
                               <span>Edit</span>
                             </a>
-                            <a class="dropdown-item" href="#">
+                           <a class="dropdown-item delete-user" href="#" data-id="${item._id}" data-name="${item.name}" >
                               <i data-feather="trash" class="me-50"></i>
                               <span>Delete</span>
                             </a>
