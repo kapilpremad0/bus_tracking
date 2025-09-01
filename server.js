@@ -13,11 +13,19 @@ app.use(cors());
 app.use(express.json()); // for parsing application/json
 const path = require('path');
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.urlencoded({ extended: true })); // for form data
+
 // Serve uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+
+
+app.use('/admin',require('./routes/admin/index.js'));
 
 
 app.use('/api/auth', require('./routes/auth'));

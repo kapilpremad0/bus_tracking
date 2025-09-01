@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     },
     user_type: {
         type: String,
-        enum: ['customer', 'driver'],
+        enum: ['customer', 'driver','admin'],
         default: 'customer'
     },
     otp_verify: {
