@@ -1,8 +1,9 @@
 const express = require('express');
-const { auth, isAdmin } = require('../../middlewares/auth');
+const adminAuth = require('../../middlewares/adminAuth');
 const userController = require('../../controllers/admin/userController');
 const router = express.Router();
 
-router.get('/', auth, isAdmin, userController.getAllUsers);
+router.get('/', adminAuth, userController.getUserList);
+router.post('/data', adminAuth, userController.getuserData);
 
 module.exports = router;

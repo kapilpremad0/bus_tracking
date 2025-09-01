@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -7,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     },
     user_type: {
         type: String,
-        enum: ['customer', 'driver','admin'],
+        enum: ['customer', 'driver', 'admin'],
         default: 'customer'
     },
     otp_verify: {
@@ -87,16 +89,33 @@ const UserSchema = new mongoose.Schema({
 
 // Virtual to generate full profile image URL
 UserSchema.virtual('profile_url').get(function () {
-    if (!this.profile) return null;
+    // if (!this.profile) return null;
 
     // Use env BASE_URL or fallback to localhost
     const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+
+    if (!this.profile) {
+        const id = this._id ? this._id.toString().slice(-1) : 1; // last digit for variation
+        const gender = this.gender;
+
+        if (gender === 'female') {
+            const avatarNumber = (id % 5) + 1; // Results in 1 to 5
+            return `${baseUrl}/avatars/avatar-f${avatarNumber}.png`;
+        } else if (gender === 'other') {
+            return `${baseUrl}/avatars/gender-symbol.png`;
+        } else {
+            const avatarNumber = (id % 5) + 1; // Results in 1 to 5
+            return `${baseUrl}/avatars/avatar${avatarNumber}.png`;
+        }
+    }
 
     // If already full URL, return as is
     if (this.profile.startsWith('http')) return this.profile;
 
     // Otherwise build the full URL
-    return `${baseUrl}/uploads/${this.profile}`;
+    const uploadPath = `/uploads/${this.profile}`;
+
+    return `${baseUrl}${uploadPath}`;
 });
 
 UserSchema.virtual('document_urls').get(function () {

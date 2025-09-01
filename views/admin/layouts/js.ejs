@@ -65,14 +65,14 @@
   })
 </script>
 
-<% if (success) { %>
-<script>
-  showSuccessToast("<%= success %>");
-</script>
+<% if (typeof success !== 'undefined' && success) { %>
+  <script>
+    showSuccessToast("<%= success %>");
+  </script>
 <% } %>
 
 
-<% if (error) { %>
+<% if (typeof error !== 'undefined' && error) { %>
 <script>
   showErrorToast("<%= error %>");
 </script>

@@ -13,12 +13,12 @@
   <div class="shadow-bottom"></div>
   <div class="main-menu-content">
     <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-      
+
       <li class=" nav-item <%= currentRoute == '/admin/' ? 'active' : '' %>"><a class="d-flex align-items-center" href="<%= '/admin' %>"><i data-feather="home"></i><span class="menu-title text-truncate" data-i18n="Form Wizard">Dashboard</span></a>
       </li>
-      <li class=" nav-item <%= currentRoute.startsWith('/admin/categories') ? 'active' : '' %>"><a class="d-flex align-items-center" href="<%= '/admin/categories' %>"><i data-feather="check-circle"></i><span class="menu-title text-truncate" data-i18n="Form Validation">Category</span></a>
+      <li class=" nav-item <%= currentRoute.startsWith('/admin/users') ? 'active' : '' %>"><a class="d-flex align-items-center" href="<%= '/admin/users' %>"><i data-feather="check-circle"></i><span class="menu-title text-truncate" data-i18n="Form Validation">Users</span></a>
       </li>
-      <li class=" nav-item <%= currentRoute.startsWith('/admin/products') ? 'active' : '' %>"><a class="d-flex align-items-center" href="<%= '/admin/products' %>"><i data-feather="rotate-cw"></i><span class="menu-title text-truncate" data-i18n="Form Repeater">Product</span></a>
+      <li class=" nav-item <%= currentRoute.startsWith('/admin/drivers') ? 'active' : '' %>"><a class="d-flex align-items-center" href="<%= '/admin/drivers' %>"><i data-feather="rotate-cw"></i><span class="menu-title text-truncate" data-i18n="Form Repeater">Drivers</span></a>
 
     </ul>
   </div>

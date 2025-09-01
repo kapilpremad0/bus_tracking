@@ -5,6 +5,7 @@ const cors = require('cors');
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
+const expressLayouts = require('express-ejs-layouts');
 
 
 
@@ -17,6 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // for parsing application/json
 const path = require('path');
+
 
 
 app.use(
@@ -39,9 +41,22 @@ app.use(
 app.locals.appName = process.env.APP_NAME;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// enable layouts
+app.use(expressLayouts);
+app.set('layout', 'admin/layouts/app'); // default layout (without .ejs extension)
+
+
 app.use(express.urlencoded({ extended: true })); // for form data
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use((req, res, next) => {
+  res.locals.currentRoute = req.path; // stores the current URL path
+  next();
+});
+
+
 // Serve uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -59,9 +74,11 @@ app.use('/api/profile', verifyToken, require('./routes/profile'));
 app.use('/api/attendance', verifyToken, require('./routes/attendance'));
 
 
-
-
-
+app.use((req, res, next) => {
+  res.locals.success = null;
+  res.locals.error = null;
+  next();
+});
 
 
 const PORT = process.env.PORT || 3000;
