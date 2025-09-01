@@ -12,23 +12,43 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }); // Sequelize: findOne({ where: { email } })
-    if (!user || user.role !== 'admin') {
-      return res.render('admin/login', { error: "Invalid admin credentials" });
+
+    const existingAdmin = await User.findOne({ email: 'admin@gmail.com' });
+
+    if (!existingAdmin) {
+      const newAdmin = new User({
+        name: "admin user",
+        email: 'admin@gmail.com',
+        mobile: "0000000001",
+        password: await bcrypt.hash('Admin@123', 10), // Will be hashed by pre-save hook
+        user_type: 'admin'
+      });
+
+      await newAdmin.save();
+      console.log('✅ Admin user created: admin@gmail.com / Admin@123');
+    } else {
+      console.log('✅ Admin already exists: admin@gmail.com');
+    }
+
+
+    const user = await User.findOne({ email }); // Sequelize: { where: { email } }
+    if (!user || user.user_type !== "admin") {
+      return res.status(400).json({ error: "Invalid email" });
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.render('admin/login', { error: "Invalid admin credentials" });
+      return res.status(400).json({ error: "Incorrect password" });
     }
 
-    // Generate token (if you’re using JWT for APIs)
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    req.session.admin = { id: user.id, email: user.email, role: user.user_type };
 
-    // For now redirect to admin dashboard
-    res.redirect('/admin/home');
+
+    return res.json({ success: true, redirect: "/admin/home" });
+
   } catch (err) {
     console.error(err);
-    res.render('admin/login', { error: "Something went wrong" });
+    return res.status(500).json({ error: "Server error" });
   }
 };
+

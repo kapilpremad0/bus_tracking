@@ -1,28 +1,27 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // adjust path to your User model
+const User = require('../models/User'); // adjust path if needed
 
 const adminAuth = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    // If no token, redirect to admin login
-    if (!token) {
+    // Check if user is in session
+    if (!req.session || !req.session.admin) {
+      console.log("No session user found, redirecting to admin login");
       return res.redirect('/admin/login');
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id); // Sequelize: findByPk(decoded.id)
-
+    // Find user from DB
+    const user = await User.findById(req.session.admin.id);
     if (!user) {
+      console.log("User not found in DB, clearing session");
+      req.session.destroy(() => { });
       return res.redirect('/admin/login');
     }
 
-    // Check role
-    if (user.role !== 'admin') {
+    // Role check
+    if (user.user_type !== 'admin') {
       return res.status(403).json({ message: "Forbidden: Admins only" });
     }
 
+    // Attach user to request
     req.user = user;
     next();
   } catch (err) {
