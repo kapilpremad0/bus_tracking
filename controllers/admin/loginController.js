@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 // Show login page
 exports.showLoginPage = (req, res) => {
-  res.render('admin/login', { error: null });
+  res.render('admin/login', { error: null ,layout: false });
 };
 
 // Handle login form submission
@@ -50,5 +50,13 @@ exports.login = async (req, res) => {
     console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
+};
+
+
+exports.logout = (req, res) => {
+  req.session.destroy((err) => {
+    res.clearCookie("connect.sid"); // clear session cookie
+    return res.redirect("/admin/login"); // 👈 redirect instead of JSON
+  });
 };
 

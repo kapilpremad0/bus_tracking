@@ -8,5 +8,8 @@ router.get('/', adminAuth, homeController.dashboard);
 
 router.get('/login',loginController.showLoginPage)
 router.post('/login',loginController.login)
+router.get('/logout',loginController.logout)
+router.get('/stats', homeController.getDashboardStats)
+
 
 module.exports = router;

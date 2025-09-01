@@ -5,7 +5,7 @@ const router = express.Router();
 router.use('/', require('../admin/homeRoutes'));
 
 router.use('/users', require('../admin/userRoutes'));
-// router.use('/drivers', require('../admin/driverRoutes'));
+router.use('/drivers', require('../admin/driverRoutes'));
 
 // // Other app routes (profile, etc.)
 // router.use('/profile', require('./profileRoutes'));
