@@ -15,27 +15,31 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
 app.use(cors());
-app.use(express.json()); // for parsing application/json
 const path = require('path');
 
 
 
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET || "mysecret",
-        resave: false,
-        saveUninitialized: false,
-        store: MongoStore.create({
-            mongoUrl: process.env.MONGO_URI,
-            collectionName: "sessions",
-        }),
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 24, // 1 day
-            httpOnly: true,
-            secure: false, // true if https
-        },
-    })
+  session({
+    secret: process.env.SESSION_SECRET || "mysecret",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: "sessions",
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      httpOnly: true,
+      secure: false, // true if https
+    },
+  })
 );
 
 app.locals.appName = process.env.APP_NAME;
@@ -46,8 +50,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
 app.set('layout', 'admin/layouts/app'); // default layout (without .ejs extension)
 
-
-app.use(express.urlencoded({ extended: true })); // for form data
 
 app.use(express.static(path.join(__dirname, 'public')));
 
