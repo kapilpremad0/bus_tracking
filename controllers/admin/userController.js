@@ -3,7 +3,7 @@ const User = require('../../models/User');
 
 exports.getUserList = async (req, res) => {
   try {
-    res.render('admin/users/list');
+    res.render('admin/users/list',{ title: "Passenger" });
     // res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });

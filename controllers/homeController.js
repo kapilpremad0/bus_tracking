@@ -6,6 +6,7 @@ const Subscription = require('../models/Subscription');
 const PauseDate = require('../models/PauseDate');
 const LeaveDate = require('../models/LeaveDate');
 const path = require('path');
+const Company = require('../models/Company');
 
 
 const formatError = (field, message) => ({ [field]: message });
@@ -40,6 +41,16 @@ exports.transactions = async (req, res) => {
     }
 }
 
+
+exports.getCompanies = async (req, res) => {
+    try {
+        const companies = await Company.find({ status: 1 }).sort({ createdAt: -1 });
+        return res.json(companies);
+    } catch (err) {
+        console.error('Get Companies:', err.message);
+        return res.status(500).json({ message: 'Server Error' });
+    }
+}
 
 exports.purchaseSubscription = async (req, res) => {
     try {

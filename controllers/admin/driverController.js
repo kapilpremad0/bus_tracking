@@ -3,7 +3,7 @@ const User = require('../../models/User');
 
 exports.getList = async (req, res) => {
   try {
-    res.render('admin/drivers/list');
+    res.render('admin/drivers/list',{ title: "Driver" });
     // res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });

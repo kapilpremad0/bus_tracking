@@ -12,5 +12,15 @@ router.post('/',adminAuth,
     upload.fields([{ name: "logo", maxCount: 1 }]),
 companyController.storeData);
 
+router.put('/:id',adminAuth,
+    upload.fields([{ name: "logo", maxCount: 1 }]),
+companyController.updateData);
+
+
+
+
+
+router.get('/json/:id', adminAuth,companyController.getInJson );
+
 
 module.exports = router;

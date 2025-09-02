@@ -26,5 +26,6 @@ router.get('/home/driver',verifyToken,homeController.homeDriver)
 
 
 router.get('/terms', homeController.termsPage);
+router.get('/companies', homeController.getCompanies);
 
 module.exports = router;

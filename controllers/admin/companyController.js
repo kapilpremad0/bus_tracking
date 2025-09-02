@@ -4,7 +4,7 @@ const Company = require('../../models/Company');
 
 exports.getList = async (req, res) => {
     try {
-        res.render('admin/companies/list');
+        res.render('admin/companies/list',{ title: "Company" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -18,6 +18,16 @@ exports.deleteRecord = async (req, res) => {
         res.status(500).json({ message: "Error deleting Company", error: err });
     }
 };
+
+exports.getInJson = async (req, res) => {
+    try {
+        const company = await Company.findById(req.params.id);
+        if (!company) return res.status(404).json({ error: "Company not found" });
+        res.json(company);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+}
 
 exports.getListData = async (req, res) => {
     try {
@@ -63,7 +73,7 @@ exports.getListData = async (req, res) => {
             name: `<div class="d-flex align-items-center">
                             <div class="avatar rounded">
                                 <div class="avatar-content">
-                                    <img src="${item.profile_url}" width="50"
+                                    <img src="${item.logo_url}" width="50"
                                         height="50" alt="Toolbar svg" />
                                 </div>
                             </div>
@@ -87,11 +97,11 @@ exports.getListData = async (req, res) => {
                             <i data-feather="more-vertical"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item edit-company" href="#" data-id="${item._id}" >
                               <i data-feather="edit-2" class="me-50"></i>
                               <span>Edit</span>
                             </a>
-                           <a class="dropdown-item delete-Company" href="#" data-id="${item._id}" data-name="${item.name}" >
+                           <a class="dropdown-item delete-user" href="#" data-id="${item._id}" data-name="${item.name}" >
                               <i data-feather="trash" class="me-50"></i>
                               <span>Delete</span>
                             </a>
@@ -119,7 +129,7 @@ exports.storeData = async (req, res) => {
 
 
         const { name, email, phone, address, latitude, longitude, status } = req.body || {};
-        const logo = req.file; // Multer handles file upload
+        const logo = req.files?.logo?.[0]; // uploaded file (if exists)
 
         const errors = {};
 
@@ -149,7 +159,7 @@ exports.storeData = async (req, res) => {
         if (longitude && !/^[-+]?((1[0-7]\d)|([1-9]?\d))(\.\d+)?|180(\.0+)?$/.test(longitude)) {
             errors.longitude = "Invalid longitude (-180 to 180)";
         }
-        // if (!logo) errors.logo = "Logo is required";
+        if (!logo) errors.logo = "Logo is required";
 
         // Return validation errors
         if (Object.keys(errors).length > 0) {
@@ -165,7 +175,7 @@ exports.storeData = async (req, res) => {
             latitude,
             longitude,
             status,
-            // logo_url: logo.filename // store filename or path
+            logo: logo.filename // always safe now because logo is required
         });
 
         await company.save();
@@ -179,3 +189,17 @@ exports.storeData = async (req, res) => {
         return res.status(500).json({ error: "Failed to save company. Please try again later." });
     }
 };
+
+
+exports.updateData = async (req, res) => {
+    try {
+        const updateData = { ...req.body };
+        if (req.files?.logo?.[0]) {
+            updateData.logo = req.files.logo[0].filename;
+        }
+        const company = await Company.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        res.json(company);
+    } catch (err) {
+        res.status(500).json({ error: "Update failed" });
+    }
+}
