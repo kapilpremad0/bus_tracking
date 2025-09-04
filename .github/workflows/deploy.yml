@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Upload files via SFTP
+      - name: Upload only changed files via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.SERVER_IP }}
@@ -23,6 +23,7 @@ jobs:
           local_path: "./"
           remote_path: "/var/www/bus_tracking"
           delete_remote_files: false
+          sftpArgs: "-azP"   # only changed files, compress transfer
 
       - name: Install deps & restart with PM2 (SSH)
         uses: appleboy/ssh-action@v1.0.3
