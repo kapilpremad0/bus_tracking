@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           local_path: "./"
-          remote_path: "/var/www/teenpatti"
+          remote_path: "/var/www/bus_tracking"
           delete_remote_files: false
 
       - name: Install deps & restart with PM2 (SSH)
@@ -32,8 +32,8 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script: |
-            cd /var/www/teenpatti
+            cd /var/www/bus_tracking
             npm install --production
-            pm2 delete teenpatti || true
-            pm2 start server.js --name "teenpatti"
+            pm2 delete bus_tracking || true
+            pm2 start server.js --name "bus_tracking"
             pm2 save
