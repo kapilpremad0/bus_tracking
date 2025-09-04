@@ -45,6 +45,8 @@ exports.transactions = async (req, res) => {
 
 
 //jhkjdhfkhk
+
+
 exports.getCompanies = async (req, res) => {
     try {
         const companies = await Company.find({ status: 1 }).sort({ createdAt: -1 });
