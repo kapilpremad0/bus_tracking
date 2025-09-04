@@ -23,7 +23,7 @@ jobs:
           local_path: "./"
           remote_path: "/var/www/bus_tracking"
           delete_remote_files: false
-          sftpArgs: "-azP"   # only changed files, compress transfer
+          sftpArgs: "-rpq"   # only changed files, compress transfer
 
       - name: Install deps & restart with PM2 (SSH)
         uses: appleboy/ssh-action@v1.0.3
