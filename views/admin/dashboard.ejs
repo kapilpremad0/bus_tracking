@@ -79,6 +79,95 @@
               </div>
             </div>
           </div>
+
+
+          <div class="col-xl-12 col-md-6 col-12">
+            <div class="card">
+              <div class="card-header">
+                <h2>latest Users</h2>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive card card-company-table">
+                  <script>
+                    $(document).ready(function() {
+                      var table = $('#categoriesTable').DataTable({
+                        paging: false, // ❌ disable pagination
+                        searching: false, // ❌ disable search box
+                        info: false, // ❌ disable "showing x of y"
+                        // processing: true,
+                        // serverSide: true,
+                        ajax: {
+                          url: '/admin/users/homeData',
+                          type: 'POST',
+                          contentType: 'application/json',
+                          data: function(d) {
+                            // Get values from both filters
+                            var search = $('#searchFilter').val(); // Get search term
+                            var status = $('#statusFilter').val(); // Get selected status
+
+                            // Add search term and status filter to the data object
+                            if (search) {
+                              d.search = search; // Add the search term
+                            }
+                            if (status) {
+                              d.status = status; // Add the status filter if it's selected
+                            }
+
+                            return JSON.stringify(d); // Return the modified data object
+
+                            feather.replace();
+
+                          }
+                        },
+                        columns: [{
+                            data: null,
+                            render: function(data, type, row, meta) {
+                              return meta.settings._iDisplayStart + meta.row + 1;
+                            },
+                            searchable: false,
+                            orderable: false
+                          },
+                          {
+                            data: 'name'
+                          },
+
+                          {
+                            data: 'gender'
+                          },
+                          {
+                            data: 'dob'
+                          },
+                          
+                        ],
+                        drawCallback: function(settings) {
+                          feather.replace(); // Ensures icons are replaced every time table is drawn
+                        }
+                      });
+
+                      // Reload table when either filter or search is changed
+                      $('#statusFilter, #searchFilter').on('change keyup', function() {
+                        table.ajax.reload(); // Reload DataTable on change or keyup
+                      });
+                    });
+                  </script>
+
+                  <table class="table" id="categoriesTable">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>DOB</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
           <!--/ Statistics Card -->
         </div>
 
