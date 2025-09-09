@@ -3,7 +3,7 @@ const User = require('../../models/User');
 
 exports.getUserList = async (req, res) => {
   try {
-    res.render('admin/users/list',{ title: "Passenger" });
+    res.render('admin/users/list', { title: "Passenger" });
     // res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -18,6 +18,68 @@ exports.deleteRecord = async (req, res) => {
     res.status(500).json({ message: "Error deleting user", error: err });
   }
 };
+
+
+exports.getUserHomeData = async (req, res) => {
+  try {
+    const draw = parseInt(req.body.draw) || 0;
+    const start = parseInt(req.body.start) || 0;
+    const length = parseInt(req.body.length) || 10;
+    const search = req.body.search?.value || "";
+    const status = req.body.status; // Get the status filter
+
+    const query = { user_type: "customer", otp_verify: true };
+
+    const totalRecords = await User.countDocuments();
+    const filteredRecords = await User.countDocuments(query);
+
+
+
+    const data_fetch = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip(start)
+      .limit(5)
+      .exec();
+
+    const baseUrl = `${req.protocol}://${req.get('host')}/uploads`;
+
+    const data = data_fetch.map(item => ({
+      name__: item.name,
+      gender: item.gender,
+      dob: item.dob,
+      name: `<div class="d-flex align-items-center">
+                            <div class="avatar rounded">
+                                <div class="avatar-content">
+                                    <img src="${item.profile_url}" width="50"
+                                        height="50" alt="Toolbar svg" />
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bolder">${item.name}</div>
+                                <div class="font-small-2 text-muted">${item.email}</div>
+                                <div class="font-small-2 text-muted">${item.mobile}</div>
+                                
+                            </div>
+                        </div>`,
+
+      // status: item.status === 1
+      //   ? `<span class="badge rounded-pill badge-light-primary me-1">Active</span>`
+      //   : `<span class="badge rounded-pill badge-light-danger me-1">Inactive</span>`,
+      // description: item.description,
+      datetime: new Date(item.createdAt).toLocaleString(), // Format datetime
+    }));
+
+    res.json({
+      draw,
+      recordsTotal: totalRecords,
+      recordsFiltered: filteredRecords,
+      data
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 exports.getuserData = async (req, res) => {
   try {
