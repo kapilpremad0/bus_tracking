@@ -28,8 +28,6 @@ exports.register = async (req, res) => {
 
         if (!mobile) {
             Object.assign(errors, formatError('mobile', 'The mobile field is required.'));
-        } else if (!/^\d{10}$/.test(mobile)) {
-            Object.assign(errors, formatError('mobile', 'The mobile must be a valid 10-digit number.'));
         }
 
         if (!password) {
@@ -122,8 +120,6 @@ exports.login = async (req, res) => {
 
         if (!mobile) {
             Object.assign(errors, formatError('mobile', 'The mobile field is required.'));
-        } else if (!/^\d{10}$/.test(mobile)) {
-            Object.assign(errors, formatError('mobile', 'The mobile must be a valid 10-digit number.'));
         }
 
         if (!password) {
